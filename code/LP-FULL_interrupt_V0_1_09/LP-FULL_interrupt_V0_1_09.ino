@@ -202,7 +202,7 @@ void addMillis(unsigned long extra_millis) {
   sei();
 }
 
-// Function do_sleep_ware : sleep for sleepyTime unleast an even happen
+// Function do_sleep_ware : sleep for sleepyTime unleast an event happen
 void do_sleep_aware(unsigned int sleepyTime) {
 unsigned int eights = sleepyTime / 8;
 
@@ -705,4 +705,3 @@ void setup() {
 void loop() {
   os_runloop_once();
 }
-
