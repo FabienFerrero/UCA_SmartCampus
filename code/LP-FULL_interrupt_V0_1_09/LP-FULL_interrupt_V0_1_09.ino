@@ -53,7 +53,7 @@
 
 
 #define debugSerial Serial
-#define SHOW_DEBUGINFO
+//#define SHOW_DEBUGINFO
 #define debugPrintLn(...) { if (debugSerial) debugSerial.println(__VA_ARGS__); }
 #define debugPrint(...) { if (debugSerial) debugSerial.print(__VA_ARGS__); }
 
@@ -68,13 +68,13 @@
 // first. When copying an EUI from ttnctl output, this means to reverse
 // the bytes. For TTN issued EUIs the last bytes should be 0xD5, 0xB3,
 // 0x70.
-static const u1_t PROGMEM APPEUI[8] = { 0xBA, 0xB1, 0x00, 0xD0, 0x7E, 0xD5, 0xB3, 0x70 };
+static const u1_t PROGMEM APPEUI[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 void os_getArtEui (u1_t* buf) {
   memcpy_P(buf, APPEUI, 8);
 }
 
 // This should also be in little endian format, see above.
-static const u1_t PROGMEM DEVEUI[8] = { 0x09, 0x00, 0x01, 0x00, 0x00, 0x1A, 0xFF, 0x50 };
+static const u1_t PROGMEM DEVEUI[8] = { 0x7A, 0x92, 0x05, 0xD0, 0x7E, 0xD5, 0xB3, 0x70 };
 void os_getDevEui (u1_t* buf) {
   memcpy_P(buf, DEVEUI, 8);
 }
@@ -83,7 +83,7 @@ void os_getDevEui (u1_t* buf) {
 // number but a block of memory, endianness does not really apply). In
 // practice, a key taken from ttnctl can be copied as-is.
 // The key shown here is the semtech default key.
-static const u1_t PROGMEM APPKEY[16] = { 0x36, 0x5C, 0x03, 0x50, 0xBB, 0xEE, 0x35, 0x55, 0x23, 0x06, 0x77, 0x6E, 0x8A, 0xCF, 0xE3, 0x3C };
+static const u1_t PROGMEM APPKEY[16] = { 0x47, 0xF1, 0x01, 0x9E, 0x79, 0x4B, 0x7D, 0x97, 0xF2, 0x50, 0xAC, 0x9E, 0x4F, 0x7D, 0xD8, 0x25 };
 void os_getDevKey (u1_t* buf) {
   memcpy_P(buf, APPKEY, 16);
 }
