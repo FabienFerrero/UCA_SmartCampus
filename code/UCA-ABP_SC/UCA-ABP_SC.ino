@@ -157,8 +157,6 @@ void do_sleep_aware(unsigned int sleepyTime) {
           #endif
 }
 
-
-
 // sleep unleast an event happen
 void do_sleep(unsigned int sleepyTime) {
   unsigned int eights = sleepyTime / 8;
@@ -275,8 +273,6 @@ int readSound() {
         
 }
 
-
-
 void onEvent (ev_t ev) {
     switch(ev) {
         case EV_SCAN_TIMEOUT:
@@ -365,40 +361,7 @@ void updateEnvParameters()
     pres [pres_it] = digitalRead(PDPIN); // It is important to read the PIR Value before switching any output PIN due to noise sensitivity of the PIR
     pres_it++;
     batvalue = (int)(readVcc()/10); // multiply by 10 for V in Cayenne
-   
-        #ifdef USE_SOUND
-        if (readSound()) { // if a sound is detected      
-          sound_bool = 1 ;
-         }
-         #endif  
-          // Compute average from sound sensor
-//    long somme = sound[0];
-//    for (int i = 1 ; i < snd_it ; i++)
-//    {
-//        somme += sound[i] ; //somme des valeurs (db) du tableau
-//    }   
-//
-//    sound_avg = (float)somme / ((float)(snd_it+1)) ; //valeur moyenne
-//    snd_it = 0; // reset sound counter
-  
-    // Compute average from PIR SR-501
-//    somme = pres[pres_it-1];
-//    for (int i = 1 ; i < pres_it ; i++)
-//    {
-//        somme += (int)pres[i] ; //somme des valeurs (db) du tableau
-//    }
-//    
-//    pres_avg = (float)somme / ((float)(pres_it+1)) ; //valeur moyenne
-//    pres_it = 0; // reset presence counter
-//
-//    if (pres_avg > 0 || sound_bool){ // Sense presence based on a sound detected or a PIR sense
-//      presence_detected = 1;
-//    }
-//
-//    else {
-//      presence_detected = 0;
-//    }
- 
+       
 }
 
 void do_send(osjob_t* j){
@@ -430,8 +393,7 @@ void do_send(osjob_t* j){
       do_sleep_aware(LONG_SLEEP-TX_INTERVAL); // go to sleep aware mode 
 
       #endif
-      
-      //updateEnvParameters();
+          
       }
       
     pres [pres_it] = digitalRead(PDPIN); // It is important to read the PIR Value before switching any output PIN due to noise sensitivity of the PIR
@@ -482,9 +444,8 @@ void do_send(osjob_t* j){
   Serial.println(s_avg);
   delay(100);
   #endif 
-  
 
-               
+ // Build packet              
             unsigned char mydata[26];
             mydata[0] = 0x1; // CH1
             mydata[1] = 0x67; // Temp
@@ -610,8 +571,6 @@ void setup() {
 
     // Set data rate and transmit power for uplink (note: txpow seems to be ignored by the library)
     LMIC_setDrTxpow(DR_SF7,14);
-
-
 
     // Start job
        
