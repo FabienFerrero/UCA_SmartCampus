@@ -259,42 +259,19 @@ int readLight() {
             return result;
 }
 
-bool readSound() {
+int readSound() {
  
-  digitalWrite(VCCSOUNDPIN, HIGH); // Switch on Sound sensor
-  int detection = 0;
-  bool sound_detect = 0;
-    // Spleep for 30ms for the sound detector to wake up
-   // LowPower.powerDown(SLEEP_30MS, ADC_OFF, BOD_OFF);
-    delay(30);// don't know why, but we need a delay
-    int sensorValue = (1023-analogRead(SOUNDPIN)); // ADC in 10 bit resolution
-   sensorValue = 1000.0 * (float)sensorValue / batvalue;
-    int sum=sensorValue;
-     
+ digitalWrite(VCCSOUNDPIN, HIGH); // Switch on Sound sensor
+    delay(30);
+    int s_avg = 1032-analogRead(SOUNDPIN);
     for (int i=1;i<10;i++){
-    if (sensorValue > sound_treshold){
-         detection++;   
+    s_avg =s_avg + 1032-analogRead(SOUNDPIN);//(int) 1 * sound_avg; // Cayenne analog output is 0.01 Signed
     }
-    sensorValue = 1023-analogRead(SOUNDPIN); // ADC in 10 bit resolution
-    sensorValue = 1000.0 * (float)sensorValue / batvalue;
-      sum = sum + sensorValue;
-      }
-      digitalWrite(VCCSOUNDPIN, LOW);
-
-        
-//    sound[snd_it] = sum;
-//    if (snd_it < 63) {    
-//    snd_it++;
-//    }
-//    else { // The array is full, start again
-//    snd_it = 0;
-//    sound [0] = sound [63];
-//    }
-//    if (detection >= 2){
-//      sound_detect = true;    
-//    }
+    s_avg=s_avg/10;
+    delay(30);
+    digitalWrite(VCCSOUNDPIN, LOW); // Switch on Sound sensor
     
-    return sound_detect;
+    return s_avg;
         
 }
 
@@ -421,22 +398,7 @@ void updateEnvParameters()
 //    else {
 //      presence_detected = 0;
 //    }
- #ifdef SHOW_DEBUGINFO
-  // print out the value you read:
-  Serial.print("Humidity : ");
-  Serial.println(humidity);
-  Serial.print("T°c : ");
-  Serial.println(temperature);
-  Serial.print("Light : ");
-  Serial.println(light);
-  Serial.print("Vbatt : ");
-  Serial.println(batvalue);
-  Serial.print("Average Presence : ");
-  Serial.println(pres_avg);
-  Serial.print("Average Sound : ");
-  Serial.println(sound_avg);
-  delay(100);
-  #endif 
+ 
 }
 
 void do_send(osjob_t* j){
@@ -494,23 +456,32 @@ void do_send(osjob_t* j){
 
     s.begin(true);
     int t = (int)(s.readTempC()*10);
-    int h = (int)(s.readHumidity()*2);
+    int h = (int)(s.readHumidity()*4);
     int bat = (int)(readVcc()/10); // Cayenne analog output is 0.01 Signed
     unsigned int l = (unsigned int)readLight(); // light sensor in 0.1 signed Lx
     boolean p = presence; // Presence indicator
     int p_avg = (int) 10000 * pres_avg; // Cayenne analog output is 0.01 Signed and PIR sensor will be in %
 
-
-    digitalWrite(A1, HIGH); // Switch on Sound sensor
-    delay(30);
-    int s_avg = 1032-analogRead(A0);
-    for (int i=1;i<10;i++){
-    s_avg =s_avg + 1032-analogRead(A0);//(int) 1 * sound_avg; // Cayenne analog output is 0.01 Signed
-    }
-    s_avg=s_avg/10;
-    delay(30);
-    digitalWrite(A1, LOW); // Switch on Sound sensor
+    int s_avg = readSound();
+    
     boolean p_d= presence_detected; // Sound indicator
+
+    #ifdef SHOW_DEBUGINFO
+  // print out the value you read:
+  Serial.print("Humidity : ");
+  Serial.println(h/2);
+  Serial.print("T°c : ");
+  Serial.println(t/10);
+  Serial.print("Light : ");
+  Serial.println(l);
+  Serial.print("Vbatt : ");
+  Serial.println(bat);
+  Serial.print("Average Presence : ");
+  Serial.println(p_avg);
+  Serial.print("Average Sound : ");
+  Serial.println(s_avg);
+  delay(100);
+  #endif 
   
 
                
