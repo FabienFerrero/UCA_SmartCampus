@@ -23,11 +23,9 @@
 #define CFG_EU 1
 //#define CFG_VN 1
 
-#define SOUNDPIN A0     // what pin we're connected to
-#define VCCSOUNDPIN A1   // VCC sound pin
+
 #define PDPIN 3  // PIN with PIR Sensor Digital output
 
-//#define USE_SOUND // Define is the sound sensor is used
 
 //#define SHOW_DEBUGINFO
 
@@ -89,11 +87,6 @@ unsigned int LONG_SLEEP = 1800;
  unsigned int pres_it = 0; 
  float pres_avg = 0;
  int waiting_presence = 0; // This int is incremented if no presence is detected during a sensing slot
-// int sound [64];
-// unsigned int snd_it = 0;
-// float sound_avg = 0;
-// boolean sound_bool = 0;
- int sound_treshold = 400;
  boolean presence_detected = 0;
 
 // Pin mapping
@@ -136,8 +129,8 @@ void do_sleep_aware(unsigned int sleepyTime) {
           for ( int x = 0; x < eights; x++) {
             // put the processor to sleep for 8 seconds
             LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
-              if (  waiting_presence == 0) { // if a movement is detected, send an uplink and move back to normal mode
-                 return;
+              if ( waiting_presence == 0 ) { // if a movement is detected, send an uplink and move back to normal mode
+              return;
                   }
             
             // LMIC uses micros() to keep track of the duty cycle, so
@@ -179,11 +172,7 @@ void do_sleep(unsigned int sleepyTime) {
           pres [0] = pres [127];    
           }
           
-          #ifdef USE_SOUND       
-          if (readSound()) { // if a sound is detected      
-            sound_bool = 1 ;
-          }
-          #endif
+          
             // put the processor to sleep for 8 seconds
             LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
              
@@ -252,21 +241,6 @@ int readLight() {
             return result;
 }
 
-int readSound() {
- 
- digitalWrite(VCCSOUNDPIN, HIGH); // Switch on Sound sensor
-    delay(30);
-    int s_avg = 1032-analogRead(SOUNDPIN);
-    for (int i=1;i<10;i++){
-    s_avg =s_avg + 1032-analogRead(SOUNDPIN);//(int) 1 * sound_avg; // Cayenne analog output is 0.01 Signed
-    }
-    s_avg=s_avg/10;
-    delay(30);
-    digitalWrite(VCCSOUNDPIN, LOW); // Switch on Sound sensor
-    
-    return s_avg;
-        
-}
 
 void onEvent (ev_t ev) {
     switch(ev) {
@@ -361,7 +335,7 @@ void do_send(osjob_t* j){
     } 
     
     else {  
-   
+    
     
       if ( pres_avg == 0 ) {
       
@@ -388,7 +362,7 @@ void do_send(osjob_t* j){
     pres_it++;
      // Compute average from PIR SR-501
    long somme = pres[pres_it-1];
-    for (int i = 1 ; i < pres_it ; i++)
+    for (int i = 0 ; i < pres_it ; i++)
     {
         somme += (int)pres[i] ; //somme des valeurs (db) du tableau
     }
@@ -412,9 +386,7 @@ void do_send(osjob_t* j){
     boolean p = presence; // Presence indicator
     int p_avg = (int) 10000 * pres_avg; // Cayenne analog output is 0.01 Signed and PIR sensor will be in %
 
-    int s_avg = readSound();
-    
-    boolean p_d= presence_detected; // Sound indicator
+        boolean p_d= presence_detected; // Sound indicator
 
     #ifdef SHOW_DEBUGINFO
   // print out the value you read:
@@ -434,7 +406,7 @@ void do_send(osjob_t* j){
   #endif 
 
  // Build packet              
-            unsigned char mydata[26];
+            unsigned char mydata[22];
             mydata[0] = 0x1; // CH1
             mydata[1] = 0x67; // Temp
             mydata[2] = t >> 8;
@@ -455,12 +427,8 @@ void do_send(osjob_t* j){
             mydata[17] = p_avg>> 8;
             mydata[18] = p_avg & 0xFF;
             mydata[19] = 0x6;
-            mydata[20] = 0x2;
-            mydata[21] = s_avg>> 8;
-            mydata[22] = s_avg & 0xFF;
-            mydata[23] = 0x7;
-            mydata[24] = 0x0;
-            mydata[25] = p_d;
+            mydata[20] = 0x0;
+            mydata[21] = p_d;
             
             LMIC_setTxData2(1, mydata, sizeof(mydata), 0);
       
@@ -484,9 +452,7 @@ void setup() {
       
     Wire.begin();
     pinMode(PDPIN, INPUT);
-    pinMode(VCCSOUNDPIN, OUTPUT);
-    pinMode(SOUNDPIN, INPUT);
-   
+       
     s.begin(true);
     
     // Set-up sensors
@@ -573,9 +539,12 @@ void loop() {
 void wakeUp()
 {
     // Just a handler for the pin interrupt.
-      waiting_presence = 0 ;
+
+               waiting_presence = 0 ;
                pres [0] = 2;
                pres_it = 1;
                // Disable external pin interrupt on wake up pin.
               detachInterrupt(1); 
+          
+    
 }
