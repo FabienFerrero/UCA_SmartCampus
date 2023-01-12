@@ -89,10 +89,6 @@ unsigned int LONG_SLEEP = 1800;
  unsigned int pres_it = 0; 
  float pres_avg = 0;
  int waiting_presence = 0; // This int is incremented if no presence is detected during a sensing slot
-// int sound [64];
-// unsigned int snd_it = 0;
-// float sound_avg = 0;
-// boolean sound_bool = 0;
  int sound_treshold = 400;
  boolean presence_detected = 0;
 
