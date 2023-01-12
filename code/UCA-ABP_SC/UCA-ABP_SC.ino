@@ -255,14 +255,14 @@ int readLight() {
 int readSound() {
  
  digitalWrite(VCCSOUNDPIN, HIGH); // Switch on Sound sensor
-    delay(30);
+    LowPower.powerDown(SLEEP_30MS, ADC_OFF, BOD_OFF);
     int s_avg = 1032-analogRead(SOUNDPIN);
     for (int i=1;i<10;i++){
     s_avg =s_avg + 1032-analogRead(SOUNDPIN);//(int) 1 * sound_avg; // Cayenne analog output is 0.01 Signed
+    delay(2);
     }
-    s_avg=s_avg/10;
-    delay(30);
     digitalWrite(VCCSOUNDPIN, LOW); // Switch on Sound sensor
+    s_avg=s_avg/10;   
     
     return s_avg;
         
